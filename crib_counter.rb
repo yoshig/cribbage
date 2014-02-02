@@ -1,10 +1,11 @@
 class CribCounter
   attr_accessor :hand
 
-  def initialize(hand)
+  def initialize(hand, crib = false)
     @hand = hand.map { |card| card[0] }
     @suits = hand.map { |card| card[1] }
     @total_points = 0
+    @crib = crib
   end
 
   def card_vals_for_fifteens
@@ -46,18 +47,18 @@ class CribCounter
   end
 
   def pairs
-    0.tap do |pairs|
-      all_combos = @hand.combination(2).to_a
-      all_combos.each do |combo|
-        pairs += 2 if combo[0] == combo[1]
-      end
+    pair_points = 0
+    all_combos = @hand.combination(2).to_a
+    all_combos.each do |pair|
+      pair_points += 2 if pair[0] == pair[1]
     end
+    pair_points
   end
 
   def runs_from_sets(run_vals, n)
     combos = run_vals.combination(n).to_a
     combos.select do |set|
-      set.last - set.first == n - 1
+      set.last - set.first == n - 1 && set.uniq.count == set.count
     end.count
   end
 
@@ -77,8 +78,19 @@ class CribCounter
     if @crib == true
       @suits.uniq.count == 1 ? 5 : 0
     else
-      x[1..-2].uniq.count == 1 ? (x.last == x.first ? 5 : 4) : 0
+      @suits[1..-2].uniq.count == 1 ? (@suits.last == @suits.first ? 5 : 4) : 0
     end
+  end
+
+  def nobs
+    @hand[0..-2].each_with_index do |card, suit|
+      if card == "J"
+        if @suits[suit] == @suits.last
+          return 1
+        end
+      end
+    end
+    0
   end
 
   def all_points
@@ -90,12 +102,14 @@ end
 crib_hand = CribCounter.new([
   ["10", "H"],
   ["J", "H"],
-  ["J", "S"],
-  ["Q", "D"],
-  ["K", "C"]
+  ["J", "H"],
+  ["Q", "H"],
+  ["K", "D"]
   ])
 
 # p crib_hand.card_vals_for_fifteens
 # p crib_hand.fifteens
 # p crib_hand.all_points
-p crib_hand.runs
+# p crib_hand.runs
+# p crib_hand.pairs
+p crib_hand.all_points
