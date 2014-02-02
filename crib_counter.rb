@@ -112,4 +112,4 @@ crib_hand = CribCounter.new([
 # p crib_hand.all_points
 # p crib_hand.runs
 # p crib_hand.pairs
-p crib_hand.all_points
+# p crib_hand.all_points
