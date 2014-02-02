@@ -2,7 +2,7 @@ class Deck
   attr_accessor :face_vals, :deck
   def initialize
     @suits = ["D", "C", "H", "S"]
-    @face_vals = ["A"] + ("1".."10").to_a + ["J", "Q", "K"]
+    @face_vals = ["A"] + ("2".."10").to_a + ["J", "Q", "K"]
     @deck = self.shuffle
   end
 
