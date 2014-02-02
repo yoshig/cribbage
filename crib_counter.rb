@@ -74,11 +74,15 @@ class CribCounter
   end
 
   def flush
-
+    if @crib == true
+      @suits.uniq.count == 1 ? 5 : 0
+    else
+      x[1..-2].uniq.count == 1 ? (x.last == x.first ? 5 : 4) : 0
+    end
   end
 
   def all_points
-    fifteens + pairs + runs
+    fifteens + pairs + runs + flush
   end
 
 end
