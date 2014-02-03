@@ -19,10 +19,10 @@ class CribbageGame
 
     case @deck.face_vals.index(p1_card) <=> @deck.face_vals.index(p2_card)
     when 1
-      puts "#{p2_card} is less than #{p1_card}. Player 2 starts"
+      puts "#{p2_card} is less than #{p1_card}. Player 2 starts."
       @whos_crib = [@player1, @player2]
     when -1
-      puts "#{p1_card} is less than #{p2_card}. Player 1 starts"
+      puts "#{p1_card} is less than #{p2_card}. Player 1 starts."
       @whos_crib = [@player1, @player2]
     when 0
       puts "You both chose #{p1_card}. Choose again"
@@ -47,7 +47,7 @@ class CribbageGame
   def add_to_crib
     puts "It is #{@whos_crib[0].name}'s crib."
     @crib = []
-    players.each { |player| @crib << player.throw_away_cards }
+    players.each { |player| @crib << player.put_2_in_crib }
     @crib.flatten(1)
   end
 

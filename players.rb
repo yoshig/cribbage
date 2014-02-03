@@ -13,7 +13,20 @@ class HumanPlayer
   end
 
   def put_2_in_crib
-    puts "#{@name}, choose the indexes of that you want to get rid of"
+    crib_cards = []
+    puts "#{@name}, enter cards into the crib, one at a time, by index."
+    puts "Just enter the number of the index of the card to put in"
+    until crib_cards.count == 2
+      p @hand
+      puts "Choose an index"
+      index = gets.chomp.to_i
+      if @hand[index].nil?
+        puts "That is not a valid index"
+      else
+        crib_cards << @hand.delete_at(crib_cards)
+      end
+    end
+    crib_cards
   end
 end
 
