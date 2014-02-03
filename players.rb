@@ -47,6 +47,8 @@ class CompPlayer
   end
 
   def put_2_in_crib
-    [4,5]
+    []. do |crib_cards|
+      2.times { crib_cards << @hand.pop }
+    end
   end
 end

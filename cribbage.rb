@@ -31,17 +31,27 @@ class CribbageGame
   end
 
   def full_game
+    #Use catch and throw to break out if player wins?
     pick_first_crib
+
+    full_turn
 
   end
 
   def full_turn
+    deal_cards
+    play_phase
+    show_phase
+    players.each do { |player| player.throw_away_cards }
+    @whose_crib.rotate!
+  end
+
+  def deal_cards
     @deck.shuffle
     6.times do
       @player1.hand << @deck.deck.pop
       @player2.hand << @deck.deck.pop
     end
-
   end
 
   def add_to_crib
@@ -51,13 +61,19 @@ class CribbageGame
     @crib.flatten(1)
   end
 
-  def flip_card
-    flipped_card = @deck.deck.pop
-    puts "#{@whos_crib} flipped a #{flipped_card}"
-    @whos_crib[0].points += 1 if flipped_card[0] == "J"
+  def communal_card
+    communal_card = @deck.deck.pop
+    puts "#{@whos_crib} flipped a #{communal_card}"
+    @whos_crib[0].points += 1 if communal_card[0] == "J"
   end
 
   def play_phase
+    until players.all? { |player| player.@hand.empty? }
+
+    end
+  end
+
+  def show_phase
   end
 
   def winner?
