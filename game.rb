@@ -3,10 +3,9 @@ require './deck.rb'
 require './players.rb'
 require './card_organization.rb'
 require './play_points.rb'
-require './announcer.rb'
 
 module Cribbage
-  class Game < Announcer
+  class Game
     
     attr_accessor :whos_crib
 
@@ -17,7 +16,6 @@ module Cribbage
       @player2 = player2
       @deck = Deck.new
       @whos_crib = []
-      @says = Announcer.new
     end
 
     def players
@@ -26,6 +24,7 @@ module Cribbage
 
     def full_game
       pick_first_crib
+
       begin
         full_turn
         if players.all? { |player| player.points < 120 }
@@ -39,8 +38,7 @@ module Cribbage
 
     def pick_first_crib
       p1_card, p2_card = players.map { @deck.cards.pop[0] }
-      puts "Player 1 chose #{p1_card}. Player 2 chose #{p2_card}."
-
+      puts "#{@player1.name} chose a #{p1_card}, #{@player2.name} chose a #{p2_card}."
       case @deck.face_vals.index(p1_card) <=> @deck.face_vals.index(p2_card)
       when 1
         puts "#{p2_card} is less than #{p1_card}. Player 2 starts."
@@ -81,7 +79,10 @@ module Cribbage
     def pick_communal_card
       @communal_card = @deck.cards.pop
       puts "#{@whos_crib[0].name} flipped a #{@communal_card}"
-      whos_crib[0].points += 1 if @communal_card[0] == "J"
+      if @communal_card[0] == "J"
+        puts "#{@whos_crib[0]} gets 1!"
+        whos_crib[0].points += 1 
+      end
     end
 
     def play_phase
@@ -90,7 +91,8 @@ module Cribbage
       whos_turn = @whos_crib[0]
 
       until players.all? { |player| player.play_hand.empty? }
-        puts "Table total: #{table_cards.total || 0} "
+        puts "Current Table: #{table_cards.hand}"
+        puts "Table total: #{table_cards.total || 0}"
         next_card = whos_turn.play_card(table_cards.total)
         unless whos_turn.cant_play
           table_cards.hand << next_card

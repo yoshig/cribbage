@@ -1,7 +1,7 @@
 require './card_organization.rb'
 
 module Cribbage 
-  class HumanPlayer < CardOrganization
+  class HumanPlayer
     attr_accessor :name, :points, :count_hand, :cant_play
 
     attr_reader :play_hand
@@ -11,10 +11,8 @@ module Cribbage
     def initialize(name)
       @name = name
       @points = 0
-
       @play_hand = []
       @count_hand = []
-
       @cant_play = false
     end
 

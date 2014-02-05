@@ -70,7 +70,12 @@ module Cribbage
     end
 
     def show_all_points
-      fifteens + pairs + runs + flush
+      puts "Fifteens Points: #{fifteens}"
+      puts "    Pair Points: #{pairs}"
+      puts "     Run Points: #{runs}"
+      puts "   Flush Points: #{flush}"
+      puts "      Nob Point: #{nobs}"
+      fifteens + pairs + runs + flush + nobs
     end
 
   end
