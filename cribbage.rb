@@ -21,12 +21,15 @@ module Cribbage
     end
 
     def full_game
+      pick_first_crib
       begin
-        pick_first_crib
-
         full_turn
-        rescue Exception => e
+        if players.all? { |player| player.points < 120 }
+          raise ArgumentError.new("SCORE: #{@player1.points} to #{@player2.points}")
+        end
+      rescue Exception => e
         puts e.message
+      retry if players.all? { |player| player.points < 120 }
       end
     end
 
@@ -86,7 +89,11 @@ module Cribbage
         puts "Table total: #{table_cards.total || 0} "
         next_card = whos_turn.play_card(table_cards.total)
         unless whos_turn.cant_play
+          puts "CARD CHECK"
+          p next_card
           table_cards.hand << next_card
+          puts "TABLE CARDS"
+          p table_cards.hand
           whos_turn.points += table_cards.add_any_points 
           last_to_play = whos_turn
         end

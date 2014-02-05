@@ -8,13 +8,13 @@ module Cribbage
     end
 
     def shuffle
-      final_deck = []
+      @cards = []
       @suits.each do |suit|
         @face_vals.each do |face_val|
-          final_deck << [face_val, suit]
+          @cards << [face_val.dup, suit.dup]
         end
       end
-      final_deck.shuffle
+      @cards.shuffle
     end
   end
 end
