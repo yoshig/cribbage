@@ -1,34 +1,33 @@
-require './point_generalizations.rb'
+require './card_organization.rb'
 
-module Cribbage < GeneralPointScoring
-  class ShowHand
+module Cribbage
+  class ShowHand < CardOrganization
 
     attr_accessor :hand
 
     def initialize(hand, crib = false)
-      @hand = hand.map { |card| card[0] }
-      @suits = hand.map { |card| card[1] }
+      @hand = hand
       @crib = crib
     end
 
     def fifteens
-      0.tap do |fifteen_points|
+      0.tap do |points_from_fifteens|
       	(2..5).each do |num_cards|
       		all_combos = card_vals_for_fifteens.combination(num_cards).to_a
           all_combos.each do |combo|
-            fifteen_points += 2 if combo.inject(:+) == 15
+            points_from_fifteens += 2 if combo.inject(:+) == 15
           end
         end
       end
     end
 
     def pairs
-      pair_points = 0
-      all_combos = @hand.combination(2).to_a
-      all_combos.each do |pair|
-        pair_points += 2 if pair[0] == pair[1]
+      0.tap do |pair_points|
+        all_combos = face_values.combination(2).to_a
+        all_combos.each do |pair|
+          pair_points += 2 if pair.first == pair.last
+        end
       end
-      pair_points
     end
 
     def runs_from_sets(run_vals, n)
@@ -42,26 +41,27 @@ module Cribbage < GeneralPointScoring
       run_cards = card_vals_for_runs.sort
       (3..5).to_a.reverse.each do |combo_length|
         total_runs = runs_from_sets(run_cards, combo_length)
-        if total_runs > 0
-          return combo_length * total_runs
-        end
+        return combo_length * total_runs if total_runs > 0
       end
-
       0
     end
 
     def flush
       if @crib
-        @suits.uniq.count == 1 ? 5 : 0
+        suit_values.uniq.count == 1 ? 5 : 0
       else
-        @suits[1..-2].uniq.count == 1 ? (@suits.last == @suits.first ? 5 : 4) : 0
+        if suit_values[1..-2].uniq.count == 1
+          suit_values.last == suit_values.first ? 5 : 4 
+        else
+          0
+        end
       end
     end
 
     def nobs
-      @hand[0..-2].each_with_index do |card, suit|
-        if card == "J"
-          if @suits[suit] == @suits.last
+      face_values[0..-2].each_with_index do |face, index|
+        if face == "J"
+          if suit_values[index] == suit_values.last
             return 1
           end
         end
@@ -69,23 +69,23 @@ module Cribbage < GeneralPointScoring
       0
     end
 
-    def all_show_points
+    def show_all_points
       fifteens + pairs + runs + flush
     end
 
   end
 end
 
-crib_hand = CribCounter.new([
-  ["10", "H"],
-  ["J", "H"],
-  ["J", "H"],
-  ["Q", "H"],
-  ["K", "D"]
-  ])
+# crib_hand = Cribbage::ShowHand.new([
+#   ["10", "H"],
+#   ["J", "H"],
+#   ["J", "H"],
+#   ["Q", "H"],
+#   ["K", "D"]
+#   ])
 
 # p crib_hand.card_vals_for_fifteens
-# p crib_hand.fifteens
-# p crib_hand.runs
-# p crib_hand.pairs
-# p crib_hand.all_show_points
+ # p crib_hand.fifteens
+ # p crib_hand.runs
+ # p crib_hand.pairs
+ # p crib_hand.all_show_points

@@ -1,10 +1,10 @@
 module Cribbage
   class Deck
-    attr_accessor :face_vals, :deck
+    attr_accessor :face_vals, :cards
     def initialize
       @suits = ["D", "C", "H", "S"]
       @face_vals = ["A"] + ("2".."10").to_a + ["J", "Q", "K"]
-      @deck = self.shuffle
+      @cards = self.shuffle
     end
 
     def shuffle

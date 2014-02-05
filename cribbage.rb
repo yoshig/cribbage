@@ -1,10 +1,14 @@
 require './crib_counter.rb'
 require './deck.rb'
 require './players.rb'
+require './card_organization.rb'
 require './play_points.rb'
 
 module Cribbage
   class Game
+    
+    attr_accessor :whos_crib
+
     def initialize(player1, player2)
       @player1 = player1
       @player2 = player2
@@ -16,8 +20,18 @@ module Cribbage
       [@player1, @player2]
     end
 
+    def full_game
+      begin
+        pick_first_crib
+
+        full_turn
+        rescue Exception => e
+        puts e.message
+      end
+    end
+
     def pick_first_crib
-      p1_card, p2_card = players.map { @deck.deck.pop[0] }
+      p1_card, p2_card = players.map { @deck.cards.pop[0] }
       puts "Player 1 chose #{p1_card}. Player 2 chose #{p2_card}."
 
       case @deck.face_vals.index(p1_card) <=> @deck.face_vals.index(p2_card)
@@ -26,65 +40,75 @@ module Cribbage
         @whos_crib = [@player1, @player2]
       when -1
         puts "#{p1_card} is less than #{p2_card}. Player 1 starts."
-        @whos_crib = [@player1, @player2]
+       @whos_crib = [@player1, @player2]
       when 0
         puts "You both chose #{p1_card}. Choose again"
         pick_first_crib
       end
     end
 
-    def full_game
-      #Use catch and throw to break out if player wins?
-      pick_first_crib
-
-      full_turn
-
-    end
-
     def full_turn
       deal_cards
+      add_to_crib
+      pick_communal_card
       play_phase
       show_phase
-      players.each do { |player| player.throw_away_cards }
-      @whose_crib.rotate!
+      players.each { |player| player.throw_away_cards }
+      whos_crib.rotate!
     end
 
     def deal_cards
       @deck.shuffle
       6.times do
-        players.each { |player| player.play_hand << @deck.deck.pop }
+        players.each { |player| player.play_hand << @deck.cards.pop }
       end
     end
 
     def add_to_crib
       puts "It is #{@whos_crib[0].name}'s crib."
       @crib = []
-      players.each { |player| @crib << player.put_2_in_crib }
+      players.each { |player| @crib += player.put_2_in_crib }
       @crib.flatten(1)
     end
 
-    def communal_card
-      @communal_card = @deck.deck.pop
-      puts "#{@whos_crib} flipped a #{communal_card}"
-      @whos_crib[0].points += 1 if communal_card[0] == "J"
+    def pick_communal_card
+      @communal_card = @deck.cards.pop
+      puts "#{@whos_crib[0].name} flipped a #{@communal_card}"
+      whos_crib[0].points += 1 if @communal_card[0] == "J"
     end
 
     def play_phase
-      table_count = 0
-      count_goal
-      until players.all? { |player| player.play_hand.empty? }
+      table_cards = PlayPoints.new
+      last_to_play = ""
+      whos_turn = @whos_crib[0]
 
+      until players.all? { |player| player.play_hand.empty? }
+        puts "Table total: #{table_cards.total || 0} "
+        next_card = whos_turn.play_card(table_cards.total)
+        unless whos_turn.cant_play
+          table_cards.hand << next_card
+          whos_turn.points += table_cards.add_any_points 
+          last_to_play = whos_turn
+        end
+
+        if players.all? { |player| player.cant_play }
+          last_to_play.points += 1
+          table_cards.reset
+          players.each { |player| player.cant_play = false }
+        end
+
+        whos_turn = (whos_turn == @player1 ? @player2 : @player1)
       end
     end
 
     def show_phase
-      @whos_crib[1].points += show_points(@whos_crib[1])
-      @whos_crib[0].points += show_points(@whos_crib[0])
-      @whos_crib[0].points += show_points(@crib, true)
+      whos_crib[1].points += show_points(whos_crib[1].count_hand)
+      whos_crib[0].points += show_points(whos_crib[0].count_hand)
+      whos_crib[0].points += show_points(@crib, true)
     end
 
     def show_points(player, crib = false)
-      show_hand = ShowHand.new(player.count_hand + [@communal_card], crib)
+      show_hand = ShowHand.new(player + [@communal_card], crib)
       show_hand.show_all_points
     end
 
@@ -102,5 +126,8 @@ module Cribbage
   end
 end
 
-x = Game.new("Yo", "G")
-x.pick_first_crib
+yo = Cribbage::HumanPlayer.new("Player1")
+g =  Cribbage::HumanPlayer.new("Player2")
+x = Cribbage::Game.new(yo, g)
+
+x.full_game
