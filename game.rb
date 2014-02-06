@@ -9,8 +9,6 @@ module Cribbage
     
     attr_accessor :whos_crib
 
-    attr_reader :says
-
     def initialize(player1, player2)
       @player1 = player1
       @player2 = player2
@@ -24,16 +22,19 @@ module Cribbage
 
     def full_game
       pick_first_crib
-
-      begin
-        full_turn
-        if players.all? { |player| player.points < 120 }
-          raise ArgumentError.new("SCORE: #{@player1.points} to #{@player2.points}")
-        end
-      rescue Exception => e
-        puts e.message
-      retry if players.all? { |player| player.points < 120 }
+      until winner?
+         begin
+          full_turn
+         rescue Exception => e
+           puts e.message
+         end
       end
+      puts "FINAL SCORE"
+      puts "#{@player1.name}: #{@player1.points}"
+      puts "#{@player2.name}: #{@player2.points}"
+    end
+
+    def show_score
     end
 
     def pick_first_crib
@@ -41,7 +42,7 @@ module Cribbage
       puts "#{@player1.name} chose a #{p1_card}, #{@player2.name} chose a #{p2_card}."
       case @deck.face_vals.index(p1_card) <=> @deck.face_vals.index(p2_card)
       when 1
-        puts "#{p2_card} is less than #{p1_card}. Player 2 starts."
+        puts "#{p2_card} is less than #{p1_card}."
         @whos_crib = [@player1, @player2]
       when -1
         puts "#{p1_card} is less than #{p2_card}. Player 1 starts."
@@ -60,6 +61,8 @@ module Cribbage
       show_phase
       players.each { |player| player.throw_away_cards }
       whos_crib.rotate!
+      puts "#{@player1.name}: #{@player1.points} to " +
+      "#{@player2.name}: #{@player2.points}"
     end
 
     def deal_cards
@@ -80,7 +83,7 @@ module Cribbage
       @communal_card = @deck.cards.pop
       puts "#{@whos_crib[0].name} flipped a #{@communal_card}"
       if @communal_card[0] == "J"
-        puts "#{@whos_crib[0]} gets 1!"
+        puts "#{@whos_crib[0].name} gets 1!"
         whos_crib[0].points += 1 
       end
     end
@@ -111,22 +114,28 @@ module Cribbage
     end
 
     def show_phase
-      whos_crib[1].points += show_points(whos_crib[1].count_hand)
-      whos_crib[0].points += show_points(whos_crib[0].count_hand)
-      whos_crib[0].points += show_points(@crib, true)
+      puts "#{@whos_crib[1].name}'s Hand:"
+      p @whos_crib[1].count_hand + @communal_card
+      @whos_crib[1].points += show_points(@whos_crib[1].count_hand)
+      puts "#{@whos_crib[0].name}'s Hand:"
+      p @whos_crib[0].count_hand + @communal_card
+      @whos_crib[0].points += show_points(@whos_crib[0].count_hand)
+      puts "#{@whos_crib[0].name}'s Crib:"
+      p @crib + @communal_card
+      @whos_crib[0].points += show_points(@crib, true)
     end
 
-    def show_points(player, crib = false)
-      show_hand = ShowHand.new(player + [@communal_card], crib)
+    def show_points(hand, crib = false)
+      show_hand = ShowHand.new(hand + [@communal_card], crib)
       show_hand.show_all_points
     end
 
     def winner?
       if @player1.points >= 120
-        puts "Player 1 wins!"
+        puts "{#{@player1.name} wins!"
         true
       elsif @player2.points >= 120
-        puts "Player 2 wins!"
+        puts "#{@player2.name} wins!"
         true
       else
         false

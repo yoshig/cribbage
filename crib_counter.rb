@@ -11,23 +11,23 @@ module Cribbage
     end
 
     def fifteens
-      0.tap do |points_from_fifteens|
-      	(2..5).each do |num_cards|
-      		all_combos = card_vals_for_fifteens.combination(num_cards).to_a
-          all_combos.each do |combo|
-            points_from_fifteens += 2 if combo.inject(:+) == 15
-          end
+      points_from_fifteens = 0
+      (2..5).each do |num_cards|
+    		all_combos = card_vals_for_fifteens.combination(num_cards).to_a
+        all_combos.each do |combo|
+          points_from_fifteens += 2 if combo.inject(:+) == 15
         end
       end
+      points_from_fifteens
     end
 
     def pairs
-      0.tap do |pair_points|
-        all_combos = face_values.combination(2).to_a
-        all_combos.each do |pair|
-          pair_points += 2 if pair.first == pair.last
-        end
+      pair_points = 0
+      all_combos = face_values.combination(2).to_a
+      all_combos.each do |pair|
+        pair_points += 2 if pair.first == pair.last
       end
+      pair_points
     end
 
     def runs_from_sets(run_vals, n)
@@ -75,6 +75,7 @@ module Cribbage
       puts "     Run Points: #{runs}"
       puts "   Flush Points: #{flush}"
       puts "      Nob Point: #{nobs}"
+      puts "          TOTAL: #{fifteens + pairs + runs + flush + nobs}"
       fifteens + pairs + runs + flush + nobs
     end
 
@@ -82,15 +83,15 @@ module Cribbage
 end
 
 # crib_hand = Cribbage::ShowHand.new([
-#   ["10", "H"],
-#   ["J", "H"],
+#   ["5", "H"],
+#   ["5", "H"],
 #   ["J", "H"],
 #   ["Q", "H"],
-#   ["K", "D"]
+#   ["K", "H"]
 #   ])
 
 # p crib_hand.card_vals_for_fifteens
- # p crib_hand.fifteens
- # p crib_hand.runs
- # p crib_hand.pairs
- # p crib_hand.all_show_points
+#  p crib_hand.fifteens
+#  p crib_hand.runs
+#  p crib_hand.pairs
+#  p crib_hand.show_all_points

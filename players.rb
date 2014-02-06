@@ -31,19 +31,18 @@ module Cribbage
       puts "#{@name}, enter cards into the crib, one at a time, by index."
       puts "Just enter the number of the index of the card to put in"
       until crib_cards.count == 2
-        put_card_into(crib_cards)
+      p @play_hand
+        put_card_into(gets.chomp, crib_cards)
       end
       crib_cards
     end
 
-    def put_card_into(location)
-      p @play_hand
+    def put_card_into(card_idx, location)
       puts "Choose an index"
-      index = gets.chomp.to_i
-      if @play_hand[index].nil?
+      if !("0".."6").include?(card_idx) || @play_hand[card_idx.to_i].nil?
         puts "That is not a valid index"
       else
-        location << @play_hand.delete_at(index)
+        location << @play_hand.delete_at(card_idx.to_i)
       end
     end
 

@@ -14,7 +14,7 @@ module Cribbage
           @cards << [face_val.dup, suit.dup]
         end
       end
-      @cards.shuffle
+      @cards.shuffle!
     end
   end
 end
